@@ -1,56 +1,46 @@
 #ifndef PRODUS_H
 #define PRODUS_H
 
-#include<string>
-#include<vector>
-#include<memory>
-#include<iostream>
+#include <string>
+#include <memory>
+#include <iostream>
+#include <vector>
+#include "Ingredient.h"
 
-class Ingredient;
-
-class Produs
-{
+class Produs {
 protected:
     std::string nume;
     float pretPreparare;
-    std::vector<Ingredient*> ingrediente; ///pointeri pentru camara
+    int timpPreparare;
 
     Produs(const Produs& other) = default;
     Produs& operator=(const Produs& other) = default;
 
-    virtual float calculeazaPretFinal() const =0;
-    virtual int getTimpPreparare() const =0;
-    virtual bool esteDisponibil() const =0;
-    virtual float calculeazaKcalTotal() const;
-    virtual void afisareDetalii(std::ostream& os) const;
+    virtual float calculeazaPretFinal() const;
+    virtual void afisareDetalii(std::ostream& os) const = 0;
 
 public:
-    Produs(std::string nume = "", float p = 0.0f);
+    Produs(std::string nume = "", float pretPrep = 0.0f, int timpPrep = 0);
     virtual ~Produs() = default;
 
-
-    ///interfata non-virtuala
     void afiseaza(std::ostream& os) const;
-    float pretFinal() const;
-    int timpPregatire() const;
-    bool verificareDisponibilitate() const;
+    float getPretFinal() const { return calculeazaPretFinal(); }
 
-    ///clone (constructor virtual)
     virtual std::shared_ptr<Produs> clone() const = 0;
 
-    ///non-virtuale comune
-    void adaugaIngredient(Ingredient* ing);
-    bool contineIngredient(const std::string& numeIng) const;
-    bool esteVegan() const;
-    bool esteFaraZahar() const;
-    bool esteFaraLactoza() const;
+    // Aceasta permite clasei Gestiune sa ceara lista de ingrediente
+    // indiferent de tipul de produs (Bautura, Patiserie, Sandwich)
+    virtual const std::vector<Ingredient*>& getIngrediente() const = 0;
+
+    virtual bool esteVegan() const = 0;
+    virtual bool esteFaraZahar() const = 0;
+    virtual bool esteFaraLactoza() const = 0;
+    virtual float calculeazaKcalTotal() const = 0;
+    virtual bool esteDisponibil() const = 0;
 
     const std::string& getNume() const { return nume; }
+    float getPretBaza() const { return pretPreparare; } // Am corectat getter-ul (nu e nevoie de referinta la float)
 
-    float getPretPreparare() const { return pretPreparare; }
-    const std::vector<Ingredient*>& getIngrediente() const { return ingrediente; }
-
-    float getKcal() const;
     friend std::ostream& operator<<(std::ostream& os, const Produs& p);
 };
 

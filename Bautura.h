@@ -1,36 +1,48 @@
 #ifndef BAUTURA_H
 #define BAUTURA_H
-#include "Produs.h"
 
-class Bautura : public Produs
-{
-protected:
-    int timpPreparare_;
+#include "Produs.h"
+#include "Ingredient.h"
+#include <vector>
+#include <string>
+#include <memory>
+
+class Bautura : public Produs {
+private:
+    std::vector<Ingredient*> listaIngrediente; // Reteta de baza din fisier
+    std::vector<Ingredient*> toppinguriExtra;  // Topping-uri adaugate de client
     bool esteCalda;
 
-private:
-    void afisareDetalii(std::ostream& os) const override;
-
 public:
-    Bautura(std::string nume = "", float pretPreparare = 0.0f,
-            int timpPreparare = 0, bool esteCalda = true);
+    explicit Bautura(std::string nume = "", float pretPrep = 0.0f, int timpPrep = 0, bool calda = true);
 
+    // Rule of Three actualizat pentru a gestiona ambele liste
     Bautura(const Bautura& other);
     Bautura& operator=(Bautura other);
-
     friend void swap(Bautura& a, Bautura& b);
 
-    ///constructor virtual
+    ~Bautura() override = default;
+
+    // Implementari functii virtuale (acum includ si topping-urile in calcul)
+    bool esteVegan() const override;
+    bool esteFaraZahar() const override;
+    bool esteFaraLactoza() const override;
+    float calculeazaKcalTotal() const override;
+    bool esteDisponibil() const override;
+
     std::shared_ptr<Produs> clone() const override;
 
-    float calculeazaPretFinal() const override;
+    // Metode pentru adaugare
+    void adaugaIngredient(Ingredient* ing); // Pentru fisierul bauturi.txt
+    void adaugaToppingExtra(Ingredient* top); // Pentru dorinta clientului
 
-    int getTimpPreparare() const override
-    {
-        return timpPreparare_;
+    const std::vector<Ingredient*>& getIngrediente() const override {
+        return listaIngrediente; // Returneaza pointerul catre vectorul tau real
     }
 
-    bool esteDisponibil() const override;
+protected:
+    float calculeazaPretFinal() const override;
+    void afisareDetalii(std::ostream& os) const override;
 };
 
 #endif

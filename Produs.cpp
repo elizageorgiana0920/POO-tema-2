@@ -1,98 +1,31 @@
 #include "Produs.h"
-#include "Ingredient.h"
+#include <utility>
 
-Produs::Produs(std::string nume_, float pret_)
-    : nume(nume_), pretPreparare(pret_)
-{
-}
+/// Constructorul clasei de baza
+Produs::Produs(std::string nume, float pretPrep, int timpPrep)
+    : nume(std::move(nume)), pretPreparare(pretPrep), timpPreparare(timpPrep) {}
 
-void Produs::afiseaza(std::ostream& os) const
-{
+/// Implementarea interfetei non-virtuale (NVI)
+void Produs::afiseaza(std::ostream& os) const {
+    os << "------------------------------------------\n";
+    os << "Produs: " << nume << " (" << timpPreparare << "s preparare)\n";
+
+    /// Apel polimorfic către detaliile specifice fiecărei clase (Bautura, Patiserie, Sandwich)
     afisareDetalii(os);
+
+    /// Afișăm prețul final calculat polimorfic la sfârșit, pentru consistență
+    os << "Pret final de vanzare: " << calculeazaPretFinal() << " RON\n";
 }
 
-float Produs::pretFinal() const
-{
-    return calculeazaPretFinal();
+/// Implementare de baza pentru pretul final.
+/// In Bautura va fi: pretBaza + ingrediente
+/// In Patiserie va fi: pretBaza * 1.4
+float Produs::calculeazaPretFinal() const {
+    return pretPreparare;
 }
 
-float Produs::getKcal() const
-{
-    return calculeazaKcalTotal();
-}
-
-int Produs::timpPregatire() const
-{
-    return getTimpPreparare();
-}
-
-void Produs::afisareDetalii(std::ostream& os) const
-{
-    os << "Produs: " << nume << " | Pret Preparare: " << pretPreparare << " RON";
-}
-
-void Produs::adaugaIngredient(Ingredient* ing)
-{
-    if (ing != nullptr)
-    {
-        ingrediente.push_back(ing);
-    }
-}
-
-bool Produs::contineIngredient(const std::string& numeIng) const
-{
-    for (const auto* ing : ingrediente)
-        if (ing && ing->getNume() == numeIng)
-            return true;
-
-    return false;
-}
-
-bool Produs::esteVegan() const
-{
-    for (const auto* ing : ingrediente)
-        if (ing && !ing->getVegan())
-            return false;
-
-    return true;
-}
-
-bool Produs::esteFaraZahar() const
-{
-    for (const auto* ing : ingrediente)
-        if (ing && !ing->getFaraZahar())
-            return false;
-
-    return true;
-}
-
-bool Produs::esteFaraLactoza() const
-{
-    for (const auto* ing : ingrediente)
-        if (ing && !ing->getFaraLactoza())
-            return false;
-
-    return true;
-}
-
-
-bool Produs::verificareDisponibilitate() const
-{
-    return esteDisponibil();
-}
-
-float Produs::calculeazaKcalTotal() const
-{
-    float total = 0.0f;
-    for (const auto* ing : ingrediente)
-    {
-        if (ing) total += ing->getKcal();
-    }
-    return total;
-}
-
-std::ostream& operator<<(std::ostream& os, const Produs& p)
-{
+/// Operatorul << care sustine polimorfismul
+std::ostream& operator<<(std::ostream& os, const Produs& p) {
     p.afiseaza(os);
     return os;
 }

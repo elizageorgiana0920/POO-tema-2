@@ -2,19 +2,57 @@
 #include "Exceptii.h"
 #include <utility>
 
-
+/// Constructor implicit
 Ingredient::Ingredient()
-    : stoc(0), pret(0.0f), vegan(false), faraZahar(false), faraLactoza(false), kcal(0.0f)
+    : nume(""), stoc(0), pret(0.0f), vegan(false),
+      faraZahar(false), faraLactoza(false), kcal(0.0f)
 {
 }
 
-Ingredient::Ingredient(std::string nume_, int stoc_, float pret_,
-                       bool vegan_, bool faraZahar_, bool faraLactoza_, float kcal_)
-    : nume(std::move(nume_)), stoc(stoc_), pret(pret_),
-      vegan(vegan_), faraZahar(faraZahar_), faraLactoza(faraLactoza_), kcal(kcal_)
+/// Constructor de inițializare
+Ingredient::Ingredient(std::string nume, int stoc, float pret, bool vegan, bool faraZahar, bool faraLactoza, float kcal)
+    : nume(std::move(nume)), stoc(stoc), pret(pret), vegan(vegan),
+      faraZahar(faraZahar), faraLactoza(faraLactoza), kcal(kcal)
 {
 }
 
+/// Getteri
+const std::string& Ingredient::getNume() const
+{
+    return nume;
+}
+
+int Ingredient::getStoc() const
+{
+    return stoc;
+}
+
+float Ingredient::getPret() const
+{
+    return pret;
+}
+
+bool Ingredient::getVegan() const
+{
+    return vegan;
+}
+
+bool Ingredient::getFaraZahar() const
+{
+    return faraZahar;
+}
+
+bool Ingredient::getFaraLactoza() const
+{
+    return faraLactoza;
+}
+
+float Ingredient::getKcal() const
+{
+    return kcal;
+}
+
+///metode
 void Ingredient::consumaStoc()
 {
     if (stoc > 0)
@@ -23,26 +61,37 @@ void Ingredient::consumaStoc()
         throw StocInsuficientException(nume);
 }
 
+
+///atentie, totusi vreu sa persiste
 void Ingredient::reaprovizionare(int cantitate)
 {
     if (cantitate >= 0)
         stoc += cantitate;
 }
 
+bool Ingredient::atentieStocMic() const
+{
+    return stoc < 5;
+}
+
+bool Ingredient::esteInStoc() const
+{
+    return stoc > 0;
+}
+
 std::ostream& operator<<(std::ostream& os, const Ingredient& ing)
 {
-    os << "Ingredient: " << ing.nume << " | Stoc: " << ing.stoc << " | Pret: " << ing.pret << " RON | Kcal: " << ing.
-        kcal;
-    if (ing.vegan)
-        os << " | Vegan ";
-    if (ing.faraLactoza)
-        os << "| Fara Lactoza | ";
-    if (ing.faraZahar)
-        os << "Fara Zahar";
-    os << "\n";
+    os << "Ingredient: " << ing.nume
+        << " | Stoc: " << ing.stoc
+        << " | Pret: " << ing.pret << " RON"
+        << " | Kcal: " << ing.kcal
+        << "\n  - Vegan: " << (ing.vegan ? "Da" : "Nu")
+        << " | Fara Zahar: " << (ing.faraZahar ? "Da" : "Nu")
+        << " | Fara Lactoza: " << (ing.faraLactoza ? "Da" : "Nu");
     return os;
 }
 
+/// Operator de citire
 std::istream& operator>>(std::istream& is, Ingredient& ing)
 {
     is >> ing.nume >> ing.stoc >> ing.pret >> ing.vegan >> ing.faraZahar >> ing.faraLactoza >> ing.kcal;

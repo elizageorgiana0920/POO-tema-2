@@ -1,0 +1,10 @@
+Espresso 4.0 30 1 Cafea_Arabica Apa_Filtrata
+Cappuccino 6.0 90 1 Cafea_Arabica Lapte_Integral
+Latte_Machiato 7.5 120 1 Cafea_Arabica Lapte_Integral Sirop_Vanilie
+Flat_White 8.0 100 1 Cafea_Arabica Lapte_Integral
+Vegan_Latte 8.5 120 1 Cafea_Arabica Lapte_Ovaz
+Ceai_Verde_Miere 5.0 180 1 Frunze_Ceai_Verde Apa_Filtrata Miere
+Caramel_Frappe 10.0 150 0 Cafea_Arabica Lapte_Integral Sirop_Caramel Ciocolata_Pudra
+Hot_Chocolate 7.0 120 1 Lapte_Integral Ciocolata_Pudra
+Americano 5.0 60 1 Cafea_Arabica Apa_Filtrata
+Iced_Coffee 6.5 60 0 Cafea_Arabica Zahar_Brun

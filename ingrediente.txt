@@ -1,0 +1,10 @@
+Cafea_Arabica 100 2.5 1 1 1 5
+Lapte_Integral 50 1.5 0 1 0 60
+Lapte_Ovaz 30 2.0 1 1 1 45
+Sirop_Caramel 20 1.0 1 0 1 80
+Sirop_Vanilie 20 1.0 1 0 1 80
+Zahar_Brun 100 0.5 1 0 1 20
+Apa_Filtrata 500 0.0 1 1 1 0
+Frunze_Ceai_Verde 40 2.0 1 1 1 2
+Miere 15 1.5 0 0 1 60
+Ciocolata_Pudra 25 1.2 1 0 1 50

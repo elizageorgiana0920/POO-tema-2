@@ -51,3 +51,10 @@ public:
         :CafeneaException("EROARE: Produsul "+nume+" este expirat si nu poate fi vandut!\n") {}
 };
 
+// Exceptie specifica pentru operatiuni de preparare invalide
+class OperatiuneInvalidaException : public CafeneaException {
+public:
+    explicit OperatiuneInvalidaException(const std::string& numeProdus, const std::string& operatiune)
+        : CafeneaException("EROARE PREPARARE: Produsul '" + numeProdus + "' nu permite operatiunea: " + operatiune + "!") {}
+};
+#endif

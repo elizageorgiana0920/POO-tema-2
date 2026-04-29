@@ -1,93 +1,64 @@
 #include "Patiserie.h"
-#include "Ingredient.h"
 #include <utility>
+#include <ctime>
 
-Patiserie::Patiserie(std::string nume_, float pret_, int valabilitate_)
-    : Produs(std::move(nume_), pret_), valabilitate(valabilitate_)
-{
-    dataFabricatiei = std::time(nullptr);
+Patiserie::Patiserie(std::string nume, float pretPrep, int timpPrep, std::time_t expiraLa,
+                   int stocInitial, bool veg, bool fZahar, bool fLactoza, float calorii)
+    : Produs(std::move(nume), pretPrep, timpPrep),
+      dataExpirarii(expiraLa),
+      stoc(stocInitial),
+      vegan(veg),
+      faraZahar(fZahar),
+      faraLactoza(fLactoza),
+      kcal(calorii) {}
+
+/// Adaos de 40% (Pret de baza * 1.4)
+float Patiserie::calculeazaPretFinal() const {
+    return pretPreparare * 1.4f;
 }
 
-Patiserie::Patiserie(const Patiserie& other)
-    : Produs(other), dataFabricatiei(other.dataFabricatiei), valabilitate(other.valabilitate)
-{
+bool Patiserie::esteExpirat() const {
+    return std::time(nullptr) > dataExpirarii;
 }
 
-void swap(Patiserie& a, Patiserie& b)
-{
-    using std::swap;
-    swap(a.nume, b.nume);
-    swap(a.pretPreparare, b.pretPreparare);
-    swap(a.ingrediente, b.ingrediente);
-    swap(a.dataFabricatiei, b.dataFabricatiei);
-    swap(a.valabilitate, b.valabilitate);
+void Patiserie::marcheazaExpirat() {
+    stoc = 0;
 }
 
-Patiserie& Patiserie::operator=(Patiserie other)
-{
-    swap(*this, other);
-    return *this;
+bool Patiserie::esteDisponibil() const {
+    return stoc > 0 && !esteExpirat();
 }
 
-std::shared_ptr<Produs> Patiserie::clone() const
-{
+std::shared_ptr<Produs> Patiserie::clone() const {
     return std::make_shared<Patiserie>(*this);
 }
 
-bool Patiserie::esteProaspat() const
-{
-    std::time_t acum = std::time(nullptr);
-    return (acum - dataFabricatiei) < (static_cast<long>(valabilitate) * 3600);
+void Patiserie::afisareDetalii(std::ostream& os) const {
+    os << "  Specificatii: " << kcal << " kcal | "
+       << (vegan ? "Vegan | "  : "")
+       << (faraZahar ? "Fara Zahar | " : "")
+       << (faraLactoza ? "Fara Lactoza | " : "")
+       << (!esteExpirat() ? "In termen\n" : "Expirat!\n";
 }
 
-bool Patiserie::esteDisponibil() const
-{
-    if (!esteProaspat()) return false;
-    for (const auto* ing : ingrediente)
-        if (ing && !ing->esteInStoc())
-            return false;
-    return true;
+// Copy-and-Swap actualizat cu noile campuri
+void swap(Patiserie& a, Patiserie& b) {
+    using std::swap;
+    swap(static_cast<Produs&>(a), static_cast<Produs&>(b));
+    swap(a.dataExpirarii, b.dataExpirarii);
+    swap(a.stoc, b.stoc);
+    swap(a.vegan, b.vegan);
+    swap(a.faraZahar, b.faraZahar);
+    swap(a.faraLactoza, b.faraLactoza);
+    swap(a.kcal, b.kcal);
 }
 
-void Patiserie::marcheazaExpirat()
-{
-    if (!esteProaspat())
-    {
-        for (auto* ing : ingrediente)
-        {
-            if (ing != nullptr)
-                ing->reaprovizionare(-ing->getStoc());
-        }
-    }
-}
+Patiserie::Patiserie(const Patiserie& other)
+    : Produs(other), dataExpirarii(other.dataExpirarii), stoc(other.stoc),
+      vegan(other.vegan), faraZahar(other.faraZahar),
+      faraLactoza(other.faraLactoza), kcal(other.kcal) {}
 
-float Patiserie::calculeazaPretFinal() const
-{
-    if (!esteProaspat())
-        return 0.0f;
-
-    float pret = pretPreparare;
-    std::time_t acum = std::time(nullptr);
-
-    long secundeTrecute = acum - dataFabricatiei;
-    long secundeTotal = static_cast<long>(valabilitate) * 3600;
-
-    // Daca a trecut mai mult de 70% din timp, reducere 30%
-    if (secundeTrecute > (secundeTotal * 0.7))
-        pret *= 0.7f;
-
-    return pret;
-}
-
-void Patiserie::afisareDetalii(std::ostream& os) const
-{
-    os << "Patiserie: " << nume << " | Pret: " << pretFinal() << " RON | Stare: ";
-    if (!esteProaspat())
-        os << "EXPIRAT!!!";
-    else
-    {
-        os << "Proaspat ";
-        if (pretFinal() < pretPreparare)
-            os << "- Expira curand => reducere 30%";
-    }
+Patiserie& Patiserie::operator=(Patiserie other) {
+    swap(*this, other);
+    return *this;
 }

@@ -1,0 +1,8 @@
+Frisca 50 2.5 0 1 0 80
+Sirop_Caramel 30 3.0 1 0 1 90
+Sirop_Vanilie 30 3.0 1 0 1 90
+Top_Ciocolata 25 1.5 1 0 1 50
+Extra_Shot_Espresso 100 4.0 1 1 1 5
+Lapte_Migdale 30 2.0 1 1 1 35
+Miere_Extra 20 1.5 0 0 1 60
+Scortisoara 100 0.5 1 1 1 2

@@ -1,5 +1,6 @@
 #include "Comanda.h"
 #include "Gestiune.h"
+#include "Produs.h"
 #include <iostream>
 #include <fstream>
 #include<ctime>
@@ -39,7 +40,7 @@ int Comanda::calculeazaTimpAsteptareTotal() const
 {
     int timpTotal = 0;
     for (const auto& p : produseComandate)
-        timpTotal += p->getTimpPreparare();
+        timpTotal += p->timpPregatire();
 
     return timpTotal;
 }

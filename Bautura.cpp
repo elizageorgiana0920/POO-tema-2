@@ -1,75 +1,122 @@
 #include "Bautura.h"
-#include "Ingredient.h"
+#include "Exceptii.h"
 #include <utility>
 
-Bautura::Bautura(std::string nume_, float pretPreparare_, int timp_, bool calda_)
-    : Produs(std::move(nume_), pretPreparare_),
-      timpPreparare_(timp_), esteCalda(calda_)
-{
-}
+Bautura::Bautura(std::string nume, float pretPrep, int timpPrep, bool calda)
+    : Produs(std::move(nume), pretPrep, timpPrep), esteCalda(calda) {}
 
-Bautura::Bautura(const Bautura& other) :
-    Produs(other),
-    timpPreparare_(other.timpPreparare_),
-    esteCalda(other.esteCalda)
-{
-}
+// Constructor de copiere actualizat
+Bautura::Bautura(const Bautura& other)
+    : Produs(other),
+      listaIngrediente(other.listaIngrediente),
+      toppinguriExtra(other.toppinguriExtra),
+      esteCalda(other.esteCalda) {}
 
-void swap(Bautura& a, Bautura& b)
-{
+void swap(Bautura& a, Bautura& b) {
     using std::swap;
-    swap(a.nume, b.nume);
-    swap(a.pretPreparare, b.pretPreparare);
-    swap(a.ingrediente, b.ingrediente);
-    swap(a.timpPreparare_, b.timpPreparare_);
+    swap(static_cast<Produs&>(a), static_cast<Produs&>(b));
+    swap(a.listaIngrediente, b.listaIngrediente);
+    swap(a.toppinguriExtra, b.toppinguriExtra); // Adaugat in swap
     swap(a.esteCalda, b.esteCalda);
 }
 
-Bautura& Bautura::operator=(Bautura other)
-{
+Bautura& Bautura::operator=(Bautura other) {
     swap(*this, other);
     return *this;
 }
 
-std::shared_ptr<Produs> Bautura::clone() const
-{
-    return std::make_shared<Bautura>(*this);
+void Bautura::adaugaIngredient(Ingredient* ing) {
+    if (ing == nullptr) throw DateInvalideException("Ingredient invalid.");
+    listaIngrediente.push_back(ing);
 }
 
-float Bautura::calculeazaPretFinal() const
-{
+// Logica noua pentru client: adaugam topping si scadem stocul imediat
+void Bautura::adaugaToppingExtra(Ingredient* top) {
+    if (top == nullptr) throw DateInvalideException("Topping invalid.");
+    if (!top->esteInStoc()) throw StocInsuficientException(top->getNume());
+
+    toppinguriExtra.push_back(top);
+    top->consumaStoc(); // Scade stocul din "Camara"
+}
+
+float Bautura::calculeazaPretFinal() const {
     float total = pretPreparare;
-    for (const auto* ing : ingrediente)
-        if (ing != nullptr)
-            total += ing->getPret();
-
-    if (esteVegan())
-        total *= 0.8f;
-
+    for (const auto* ing : listaIngrediente) total += ing->getPret();
+    for (const auto* top : toppinguriExtra)  total += top->getPret(); // Plus topping
     return total;
 }
 
-bool Bautura::esteDisponibil() const
-{
-    if (ingrediente.empty())
-        return true;
-    for (const auto* ing : ingrediente)
-        if (ing && !ing->esteInStoc())
-            return false;
+bool Bautura::esteDisponibil() const {
+    if (listaIngrediente.empty()) return false;
+    for (const auto* ing : listaIngrediente) {
+        if (!ing->esteInStoc()) return false;
+    }
+    // Topping-urile nu blocheaza disponibilitatea bauturii de baza,
+    // deoarece sunt adaugate doar daca sunt deja in stoc prin adaugaToppingExtra.
     return true;
 }
 
-void Bautura::afisareDetalii(std::ostream& os) const
-{
-    os << "Bautura: " << nume << " | Temperatura: ";
-    if (esteCalda)
-        os << "Calda ";
-    else
-        os << "Rece ";
+float Bautura::calculeazaKcalTotal() const {
+    float total = 0;
+    for (const auto* ing : listaIngrediente) total += ing->getKcal();
+    for (const auto* top : toppinguriExtra)  total += top->getKcal();
+    return total;
+}
 
-    os << "| Timp: " << timpPreparare_ << "s" << " | Pret Final: " << pretFinal() << " RON | Kcal: " << getKcal();
-    if (esteVegan()) os << " | VEGAN ";
-    if (esteFaraZahar()) os << " | FARA ZAHAR ";
-    if (esteFaraLactoza()) os << " | FARA LACTOZA ";
-    if (!esteDisponibil()) os << " | STOC EPUIZAT !!!";
+bool Bautura::esteVegan() const {
+    for (const auto* ing : listaIngrediente) if (!ing->getVegan()) return false;
+    for (const auto* top : toppinguriExtra)  if (!top->getVegan()) return false;
+    return true;
+}
+
+bool Bautura::esteFaraZahar() const {
+    for (const auto* ing : listaIngrediente) if (!ing->getFaraZahar()) return false;
+    for (const auto* top : toppinguriExtra)  if (!top->getFaraZahar()) return false;
+    return true;
+}
+
+bool Bautura::esteFaraLactoza() const {
+    for (const auto* ing : listaIngrediente) if (!ing->getFaraLactoza()) return false;
+    for (const auto* top : toppinguriExtra)  if (!top->getFaraLactoza()) return false;
+    return true;
+}
+
+std::shared_ptr<Produs> Bautura::clone() const {
+    return std::make_shared<Bautura>(*this);
+}
+
+void Bautura::afisareDetalii(std::ostream& os) const {
+    os << "  Specificatii: " << (esteCalda ? "calda" : "rece");
+
+    if (!toppinguriExtra.empty()) {
+        os << " | Extra: ";
+        for (size_t i = 0; i < toppinguriExtra.size(); ++i) {
+            os << toppinguriExtra[i]->getNume() << (i == toppinguriExtra.size() - 1 ? "" : ", ");
+        }
+    }
+
+    os << "\n  Nutritie: " << calculeazaKcalTotal() << " kcal | "
+       << (esteVegan() ? "Vegan" : "Non-vegan") << " | "
+       << (esteFaraLactoza() ? "Fara lactoza" : "Contine lactoza") << "\n";
+
+    os << "  Pret total: " << calculeazaPretFinal() << " RON | "
+       << "Status: " << (esteDisponibil() ? "Disponibil" : "Indisponibil") << "\n";
+}
+
+void Bautura::afisareDetalii(std::ostream& os) const {
+    // Functie de nivel inalt: nu expunem atributele direct
+    os << "  Specificatii: " << (esteCalda ? "calda" : "rece") << " | ";
+    os << (esteVegan() ? "vegan" : "") << " | ";
+    os << (esteFaraZahar() ? "fara zahar" : "") << " | ";
+    os << (esteFaraLactoza() ? "fara lactoza" : "") << " | ";
+    os << "  Pret total: " << calculeazaPretFinal() << " RON | ";
+    os << "  Calorii: " << calculeazaKcalTotal() << " kcal | ";
+    os << "  Stoc: " << (esteDisponibil() ? "Disponibil" : "Stoc epuizat");
+    if (!toppinguriExtra.empty()) {
+        os << " | Extra: ";
+        for (size_t i = 0; i < toppinguriExtra.size(); ++i) {
+            os << toppinguriExtra[i]->getNume() << (i == toppinguriExtra.size() - 1 ? "" : ", ");
+        }
+    }
+    os << "\n";
 }

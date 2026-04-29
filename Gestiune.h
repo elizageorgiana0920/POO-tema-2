@@ -6,13 +6,12 @@
 #include <map>
 #include <memory>
 #include "Ingredient.h"
+#include "Produs.h"
 
-class Produs;
-
-class Gestiune
-{
+class Gestiune {
 private:
     std::vector<Ingredient> listaIngrediente;
+    std::vector<Ingredient> listaToppinguri;
     std::vector<std::shared_ptr<Produs>> meniu;
     std::vector<std::string> istoricComenzi;
 
@@ -26,34 +25,32 @@ public:
     Gestiune();
     ~Gestiune();
 
-    ///incarca date
-    void incarcaIngrediente(std::string& fisier);
-    void incarcaMeniuBauturi(std::string& fisier);
-    void incarcaMeniuPatiserie(std::string& fisier);
+    // Incarcare date din fisiere
+    void incarcaIngrediente(const std::string& fisier);
+    void incarcaToppinguri(const std::string& fisier);
+    void incarcaMeniuBauturi(const std::string& fisier);
+    void incarcaMeniuPatiserie(const std::string& fisier);
+    void incarcaMeniuSandwich(const std::string& fisier);
 
-    ///operatii meniu
+    // Operatii Meniu (Client)
     void afisareMeniu(bool doarDisponibile = false) const;
-    void afisareMeniuFiltrat(const std::string& numeIng, bool contine) const;
-    void afisareMeniuVegan() const;
-    void afisareMeniuFaraZahar() const;
-    void afisareMeniuFaraLactoza() const;
+    void afisareMeniuPersonalizat(bool vegan, bool fZahar, bool fLactoza, const std::string& numeIng = "", bool saContina = true) const;
+    void cautaSiAfiseazaProdus(const std::string& nume) const;
 
-    Produs* cautaProdus(const std::string& nume) const;
-    Ingredient* gasesteIngredient(const std::string& nume);
-
-    void verificaStocuriCritice() const;
+    // Operatii Manager (Admin)
+    void afisareStocuriIngrediente() const;
     void reaprovizionare(const std::string& numeIng, int cantitate);
     void verificaPatiserieExpirata();
-
-    static float getProfitTotal() { return profitTotal; }
-
-    ///procesare comanda
-    void proceseazaComanda(Produs* p);
-    void adaugaInRegistru(const std::string& intrare);
-    void inregistreazaOraComanda(int ora);
-
-    ///raport
     void afisareRapoarte() const;
-    void afisareProfitTotal() const;
+
+    // Helperi cautare
+    Produs* gasesteProdusDupaNume(const std::string& nume) const;
+    Ingredient* gasesteIngredient(const std::string& nume);
+    Ingredient* gasesteTopping(const std::string& nume);
+
+    // Procesare
+    void proceseazaComanda(std::shared_ptr<Produs> p, int ora);
+    static float getProfitTotal() { return profitTotal; }
 };
+
 #endif

@@ -21,54 +21,20 @@ public:
     Ingredient(std::string nume, int stoc, float pret, bool vegan, bool faraZahar, bool faraLactoza, float kcal);
 
     ///Getteri
-    const std::string& getNume() const
-    {
-        return nume;
-    }
+    const std::string& getNume() const;
 
-    int getStoc() const
-    {
-        return stoc;
-    }
-
-    float getPret() const
-    {
-        return pret;
-    }
-
-    bool getVegan() const
-    {
-        return vegan;
-    }
-
-    bool getFaraZahar() const
-    {
-        return faraZahar;
-    }
-
-    bool getFaraLactoza() const
-    {
-        return faraLactoza;
-    }
-
-    float getKcal() const
-    {
-        return kcal;
-    }
+    int getStoc() const;
+    float getPret() const;
+    bool getVegan() const;
+    bool getFaraZahar() const;
+    bool getFaraLactoza() const;
+    float getKcal() const;
 
     ///Metode
     void consumaStoc();
     void reaprovizionare(int cantitate);
-
-    bool atentieStocMic() const
-    {
-        return stoc < 5;
-    }
-
-    bool esteInStoc() const
-    {
-        return stoc > 0;
-    }
+    bool atentieStocMic() const;///<5
+    bool esteInStoc() const;///>0
 
     ///Operator de afisare
     friend std::ostream& operator<<(std::ostream& os, const Ingredient& ing);
