@@ -13,7 +13,7 @@
 #include "Sandwich.h"
 #include "Patiserie.h"
 
-// Funcție helper pentru ora curentă
+
 static int getOraActuala()
 {
     std::time_t t = std::time(nullptr);
@@ -21,7 +21,6 @@ static int getOraActuala()
     return now->tm_hour;
 }
 
-// 1. MENIU CLIENT
 static void meniuClient(Gestiune& g)
 {
     int optiune = -1;
@@ -109,10 +108,10 @@ static void meniuClient(Gestiune& g)
                         Produs* p = g.gasesteProdusDupaNume(numeP);
                         if (!p) throw ProdusInexistentException(numeP);
 
-                        // Cloneaza produsul pentru comanda
+
                         auto pComandat = p->clone();
 
-                        // Personalizare specifica Bautura (Topping)
+
                         auto b = std::dynamic_pointer_cast<Bautura>(pComandat);
                         if (b)
                         {
@@ -151,7 +150,7 @@ static void meniuClient(Gestiune& g)
                             }
                         }
 
-                        // Personalizare specifica Sandwich (Incalzire)
+
                         auto s = std::dynamic_pointer_cast<Sandwich>(pComandat);
                         if (s)
                         {
@@ -185,7 +184,7 @@ static void meniuClient(Gestiune& g)
     }
 }
 
-// 2. MENIU BARISTA
+
 static void meniuBarista(Gestiune& g)
 {
     int optiune = -1;
@@ -204,7 +203,7 @@ static void meniuBarista(Gestiune& g)
             g.afisareToateStocurile();
             break;
         case 2:
-            g.afisareIngredienteCritice(); // Afiseaza si marcajele [CRITIC]
+            g.afisareIngredienteCritice();
             break;
         default:
             std::cout << "Optiune invalida!\n";
@@ -212,7 +211,7 @@ static void meniuBarista(Gestiune& g)
     }
 }
 
-// 3. MENIU MANAGER
+
 static void meniuManager(Gestiune& g)
 {
     int optiune = -1;
@@ -276,7 +275,6 @@ int main()
 {
     Gestiune cafea;
 
-    // Incarcare initiala
     try
     {
         cafea.incarcaIngrediente("ingrediente.txt");
@@ -292,7 +290,7 @@ int main()
     }
 
 
-    cafea.verificaPatiserieExpirata(); // Verificăm expirarea imediat după încărcare
+    cafea.verificaPatiserieExpirata();
     while (true)
     {
         try
