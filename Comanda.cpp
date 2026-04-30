@@ -27,6 +27,7 @@ Comanda::Comanda() : idComanda(++numarComenzi), totalPlata(0.0f) {
     this->dataOraComanda = ss.str();
 
     /// cod unic pentru client
+    ///preiau ultimele 3 cifre de la timestampul unix- este unic
     this->codRidicare = "QR-" + std::to_string(idComanda) + "-" + std::to_string(t % 1000);
 }
 ///aici se creeaza o comanda pas cu pas, cu pointeri la Produs si total

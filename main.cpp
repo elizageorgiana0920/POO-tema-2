@@ -13,7 +13,7 @@
 #include "Sandwich.h"
 #include "Patiserie.h"
 
-
+///pentru a marca ora la care s-a facut comanda
 static int getOraActuala()
 {
     std::time_t t = std::time(nullptr);
@@ -34,6 +34,8 @@ static void meniuClient(Gestiune& g)
                   << "5. COMANDA ACUM\n"
                   << "0. INAPOI\nOptiunea: ";
 
+
+        ///daca s-a citit altceva se continua pentru a nu se bloca, curata memoria temporara
         if (!(std::cin >> optiune))
         {
             std::cin.clear();
@@ -42,7 +44,6 @@ static void meniuClient(Gestiune& g)
         }
 
         if (optiune == 0) break;
-
         try
         {
             switch (optiune)
@@ -56,6 +57,7 @@ static void meniuClient(Gestiune& g)
                 break;
             case 3:
             {
+                ///meniu personalizat
                 bool v, z, l, cond;
                 std::string ing;
                 std::cout << "Vegan? (1-Da, 0-Nu): ";
@@ -73,9 +75,7 @@ static void meniuClient(Gestiune& g)
                     g.afisareMeniuPersonalizat(v, z, l, ing, cond);
                 }
                 else
-                {
                     g.afisareMeniuPersonalizat(v, z, l);
-                }
                 break;
             }
             case 4:
@@ -91,27 +91,53 @@ static void meniuClient(Gestiune& g)
                 g.verificaPatiserieExpirata();
                 Comanda comanda;
                 std::string numeP, raspuns = "da";
+                bool comandaAreProduse = false; /// Indicator pentru finalizare
 
                 while (raspuns == "da")
                 {
-                    Produs* p=nullptr;
-                    while (p==nullptr)
+                    Produs* p = nullptr;
+                    while (p == nullptr)
                     {
                         std::cout << "Ce doriti sa comandati? (Nume): ";
                         std::cin >> numeP;
-                        p=g.gasesteProdusDupaNume(numeP);
-                        if(!p) std::cout<<"Produs inexistent! Reincarcati.\n";
+                        p = g.gasesteProdusDupaNume(numeP);
+                        if (!p) std::cout << "[!] Produs inexistent. Incearcati din nou.\n";
                     }
 
                     try
                     {
-                        Produs* p = g.gasesteProdusDupaNume(numeP);
-                        if (!p) throw ProdusInexistentException(numeP);
+                        ///veriifc disponibilitate
+                        if (!p->esteDisponibil())
+                        {
+                            throw StocInsuficientException(p->getNume());
+                        }
 
-
+                        ///copiez produsul
                         auto pComandat = p->clone();
+                        bool produsValid = true; /// indicator pentru produsul curent
 
+                        ///daca este sandwich atunci verific daca vrea incalzit
+                        auto s = std::dynamic_pointer_cast<Sandwich>(pComandat);
+                        if (s)
+                        {
+                            std::string incalz;
+                            std::cout << "Doriti sandwich-ul incalzit? (da/nu): ";
+                            std::cin >> incalz;
+                            if (incalz == "da")
+                            {
+                                try
+                                {
+                                    s->cereIncalzit();
+                                }
+                                catch (const OperatiuneInvalidaException& e)
+                                {
+                                    std::cout << "[!] " << e.what() << " Se va servi RECE.\n";
 
+                                }
+                            }
+                        }
+
+                        /// daca este bautura verific daca vrea topping
                         auto b = std::dynamic_pointer_cast<Bautura>(pComandat);
                         if (b)
                         {
@@ -120,57 +146,59 @@ static void meniuClient(Gestiune& g)
                             std::cin >> extra;
                             if (extra == "da")
                             {
-                                bool toppingAdaugat = false;
-                                while (!toppingAdaugat)   // Bucla pana se introduce un topping valid
+                                std::string numeTop;
+                                std::cout << "Nume topping: ";
+                                std::cin >> numeTop;
+                                Ingredient* tRef = g.gasesteTopping(numeTop);
+                                if (tRef)
                                 {
-                                    std::string numeTop;
-                                    std::cout << "Nume topping (sau 'anuleaza'): ";
-                                    std::cin >> numeTop;
-                                    if (numeTop == "anuleaza") break;
-
-                                    Ingredient* tRef = g.gasesteTopping(numeTop); // Folosim tRef local
-                                    if (tRef)
+                                    try
                                     {
-                                        try
-                                        {
-                                            b->adaugaToppingExtra(tRef);
-                                            toppingAdaugat = true;
-                                        }
-                                        catch (const CafeneaException& e)
-                                        {
-                                            std::cout << e.what() << "\n";
-                                            break; // Iesim daca nu e pe stoc
-                                        }
+                                        b->adaugaToppingExtra(tRef);
                                     }
-                                    else
+                                    catch (const CafeneaException& e)
                                     {
-                                        std::cout << "Topping indisponibil! Reincercati.\n";
+                                        std::cout << "[!] Eroare topping: " << e.what();
+                                        std::cout << "[!] Produsul se adauga fara topping.\n";
                                     }
+                                }
+                                else
+                                {
+                                    std::cout << "[!] Topping-ul nu a fost gasit. Se adauga bautura simpla.\n";
                                 }
                             }
                         }
 
-
-                        auto s = std::dynamic_pointer_cast<Sandwich>(pComandat);
-                        if (s)
-                        {
-                            std::string incalz;
-                            std::cout << "Doriti sandwich-ul incalzit? (da/nu): ";
-                            std::cin >> incalz;
-                            if (incalz == "da") s->cereIncalzit();
-                        }
-
+                        ///daca n am erori pot sa adaug produsele la comandate
                         comanda.adaugaProdus(pComandat);
+                        comandaAreProduse = true;
+                        std::cout << "[OK] " << pComandat->getNume() << " a fost adaugat in cos.\n";
+
+                    }
+                    catch (const StocInsuficientException& e)
+                    {
+                        std::cout << "[!] EROARE STOC: " << e.what();
+                        std::cout << "[!] Produsul NU a fost adaugat la bon.\n";
                     }
                     catch (const CafeneaException& e)
                     {
-                        std::cout << e.what() << "\n";
+                        std::cout << "[!] Eroare: " << e.what() << "\n";
                     }
+
                     std::cout << "Mai adaugati ceva? (da/nu): ";
                     std::cin >> raspuns;
                 }
-                comanda.afisareSumarConsola();
-                comanda.finalizeazaComanda(g);
+
+                ///daca am cel putin un  produs valid finalizez comanda
+                if (comandaAreProduse)
+                {
+                    comanda.afisareSumarConsola();
+                    comanda.finalizeazaComanda(g);
+                }
+                else
+                {
+                    std::cout << "\n[!] Comanda anulata. Nu s-a adaugat niciun produs valid la bon.\n";
+                }
                 break;
             }
             default:
@@ -252,14 +280,14 @@ static void meniuManager(Gestiune& g)
             g.afisareIngredienteCritice();
             break;
         case 5:
-            g.afisareMeniu(true);
-            break; // Sau logica pt stoc < X la produse
+            g.afisareProduseCriticePatiserieSandwich();
+            break;
         case 6:
             g.afisareRapoarte();
             break;
         case 7:
         {
-            std::ifstream f("istoric_comenzi.txt");
+            std::ifstream f("registru.txt");
             std::string linie;
             if (!f) std::cout << "Istoricul este gol.\n";
             while (std::getline(f, linie)) std::cout << linie << "\n";
@@ -285,12 +313,14 @@ int main()
     }
     catch (const std::exception& e)
     {
-        std::cerr << "Eroare Fatala Incarcare: " << e.what() << "\n";
+        std::cerr << "Eroare: " << e.what() << "\n";
         return 1;
     }
 
 
     cafea.verificaPatiserieExpirata();
+    cafea.verificaSandwichExpirat();
+
     while (true)
     {
         try

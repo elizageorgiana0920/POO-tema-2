@@ -5,7 +5,7 @@
 Bautura::Bautura(std::string nume, float pretPrep, int timpPrep, bool calda)
     : Produs(std::move(nume), pretPrep, timpPrep), esteCalda(calda) {}
 
-// Constructor de copiere
+/// Constructor de copiere
 Bautura::Bautura(const Bautura& other)
     : Produs(other),
       listaIngrediente(other.listaIngrediente),
@@ -17,7 +17,7 @@ void swap(Bautura& a, Bautura& b)
     using std::swap;
     swap(static_cast<Produs&>(a), static_cast<Produs&>(b));
     swap(a.listaIngrediente, b.listaIngrediente);
-    swap(a.toppinguriExtra, b.toppinguriExtra); // Adaugat in swap
+    swap(a.toppinguriExtra, b.toppinguriExtra);
     swap(a.esteCalda, b.esteCalda);
 }
 
@@ -48,7 +48,7 @@ float Bautura::calculeazaPretFinal() const
 {
     float total = pretPreparare;
     for (const auto* ing : listaIngrediente) total += ing->getPret();
-    for (const auto* top : toppinguriExtra)  total += top->getPret(); // Plus topping
+    for (const auto* top : toppinguriExtra)  total += top->getPret(); /// Plus topping
     return total;
 }
 
@@ -105,7 +105,7 @@ std::shared_ptr<Produs> Bautura::clone() const
 ///afisare
 void Bautura::afisareDetalii(std::ostream& os) const
 {
-    // Functie de nivel inalt: nu expunem atributele direct
+
     os << "  Specificatii: " << (esteCalda ? "calda" : "rece") << " | ";
     os << (esteVegan() ? "vegan" : "") << " | ";
     os << (esteFaraZahar() ? "fara zahar" : "") << " | ";

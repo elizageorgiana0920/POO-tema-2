@@ -52,10 +52,12 @@ public:
         return kcal;
     }
 
+    int getStoc() const { return stoc; }
     /// Metode specifice pentru fluxul de comanda
     bool esteExpirat() const;
     void cereIncalzit();
-
+    void marcheazaExpirat();
+    inline void scadeStoc() { if (stoc > 0) stoc--; }
     ///nu are ingrediente
     const std::vector<Ingredient*>& getIngrediente() const override
     {

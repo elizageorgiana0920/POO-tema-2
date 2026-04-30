@@ -16,7 +16,7 @@ class StocInsuficientException: public CafeneaException
 {
 public:
     explicit StocInsuficientException(const std::string& numeIngredient)
-        : CafeneaException("EROARE: Ingredientul '" + numeIngredient + "' nu este in stoc!\n") {}
+        : CafeneaException("Produsul/Ingredientul '" + numeIngredient + "' nu este in stoc!\n") {}
 };
 
 class DateInvalideException:public CafeneaException
@@ -46,7 +46,7 @@ public:
         :CafeneaException("EROARE: Produsul "+nume+" este expirat si nu poate fi vandut!\n") {}
 };
 
-// Exceptie specifica pentru operatiuni de preparare invalide
+/// exceptie pentru toast, servire cald sau rece
 class OperatiuneInvalidaException : public CafeneaException {
 public:
     explicit OperatiuneInvalidaException(const std::string& numeProdus, const std::string& operatiune)

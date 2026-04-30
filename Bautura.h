@@ -12,8 +12,8 @@
 class Bautura : public Produs
 {
 private:
-    std::vector<Ingredient*> listaIngrediente; // Reteta de baza din fisier
-    std::vector<Ingredient*> toppinguriExtra;  // Topping-uri adaugate de client
+    std::vector<Ingredient*> listaIngrediente; /// Reteta de baza din fisier
+    std::vector<Ingredient*> toppinguriExtra;  /// Topping-uri adaugate de client
     bool esteCalda;
 
 public:

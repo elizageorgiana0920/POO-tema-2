@@ -51,8 +51,9 @@ public:
     {
         return kcal;
     }
-
+    inline void scadeStoc(){if (stoc>0) stoc--;}
     bool esteExpirat() const;
+    int getStoc() const { return stoc; }
     void marcheazaExpirat();///stoc=0 daca esteExpirat este true
 
     ///nu avem ingrediente care ne duc spre clasa ingrediente, asa ca initializez cu o lista goala

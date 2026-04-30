@@ -48,6 +48,11 @@ std::shared_ptr<Produs> Sandwich::clone() const
     return std::make_shared<Sandwich>(*this);
 }
 
+void Sandwich::marcheazaExpirat()
+{
+    stoc = 0;
+}
+
 void Sandwich::afisareDetalii(std::ostream& os) const
 {
     os << "  Specificatii: " << kcal << " kcal | "
@@ -62,7 +67,7 @@ void Sandwich::afisareDetalii(std::ostream& os) const
     os << "\n  Timp: " << timpEfectiv << "s | Stoc: " << stoc << " buc | Pret: " << calculeazaPretFinal() << " RON\n";
 }
 
-// Copy-and-Swap
+/// Copy-and-Swap
 void swap(Sandwich& a, Sandwich& b)
 {
     using std::swap;
