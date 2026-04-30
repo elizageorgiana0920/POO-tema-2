@@ -9,7 +9,7 @@ Ingredient::Ingredient()
 {
 }
 
-/// Constructor de inițializare
+/// Constructor de inițializare, folosesc std::move pentru eficienta la copierea string-ului
 Ingredient::Ingredient(std::string nume, int stoc, float pret, bool vegan, bool faraZahar, bool faraLactoza, float kcal)
     : nume(std::move(nume)), stoc(stoc), pret(pret), vegan(vegan),
       faraZahar(faraZahar), faraLactoza(faraLactoza), kcal(kcal)
@@ -58,11 +58,10 @@ void Ingredient::consumaStoc()
     if (stoc > 0)
         stoc--;
     else
-        throw StocInsuficientException(nume);
+        throw StocInsuficientException(nume);///daca stocul == 0 -> exceptie
 }
 
 
-///atentie, totusi vreu sa persiste
 void Ingredient::reaprovizionare(int cantitate)
 {
     if (cantitate >= 0)
@@ -79,15 +78,16 @@ bool Ingredient::esteInStoc() const
     return stoc > 0;
 }
 
+///operator de afisare
 std::ostream& operator<<(std::ostream& os, const Ingredient& ing)
 {
     os << "Ingredient: " << ing.nume
-        << " | Stoc: " << ing.stoc
-        << " | Pret: " << ing.pret << " RON"
-        << " | Kcal: " << ing.kcal
-        << "\n  - Vegan: " << (ing.vegan ? "Da" : "Nu")
-        << " | Fara Zahar: " << (ing.faraZahar ? "Da" : "Nu")
-        << " | Fara Lactoza: " << (ing.faraLactoza ? "Da" : "Nu");
+       << " | Stoc: " << ing.stoc
+       << " | Pret: " << ing.pret << " RON"
+       << " | Kcal: " << ing.kcal
+       << "\n  - Vegan: " << (ing.vegan ? "Da" : "Nu")
+       << " | Fara Zahar: " << (ing.faraZahar ? "Da" : "Nu")
+       << " | Fara Lactoza: " << (ing.faraLactoza ? "Da" : "Nu");
     return os;
 }
 

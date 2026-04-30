@@ -4,44 +4,52 @@
 #include <ctime>
 
 Sandwich::Sandwich(std::string nume, float pretBaza, int timpPrep, std::time_t expiraLa,
-                 int stocInitial, bool veg, bool fZahar, bool fLactoza,
-                 float calorii, bool poateIncalzi)
+                   int stocInitial, bool veg, bool fZahar, bool fLactoza,
+                   float calorii, bool poateIncalzi)
     : Produs(std::move(nume), pretBaza, timpPrep),
       dataExpirarii(expiraLa), stoc(stocInitial), vegan(veg),
       faraZahar(fZahar), faraLactoza(fLactoza), kcal(calorii),
       poateFiIncalzit(poateIncalzi), vreaIncalzit(false) {}
 
-/// LOGICA CLIENT: Se apeleaza doar daca clientul doreste incalzire
-void Sandwich::cereIncalzit() {
-    if (!poateFiIncalzit) {
-        // Aruncam exceptia daca reteta nu permite incalzirea
+///Se apeleaza doar daca clientul doreste incalzire
+void Sandwich::cereIncalzit()
+{
+    if (!poateFiIncalzit)
+    {
+        /// Aruncam exceptia daca reteta nu permite incalzirea
         throw OperatiuneInvalidaException(this->nume, "Incalzire");
     }
     vreaIncalzit = true;
 }
 
-/// LOGICA PRET: Adaos 50% + 2 RON taxa de incalzire (daca este cazul)
-float Sandwich::calculeazaPretFinal() const {
+///Adaos 50% + 2 RON taxa de incalzire (daca este cazul)
+float Sandwich::calculeazaPretFinal() const
+{
     float pret = pretPreparare * 1.5f;
-    if (vreaIncalzit) {
+    if (vreaIncalzit)
+    {
         pret += 2.0f;
     }
     return pret;
 }
 
-bool Sandwich::esteExpirat() const {
+bool Sandwich::esteExpirat() const
+{
     return std::time(nullptr) > dataExpirarii;
 }
 
-bool Sandwich::esteDisponibil() const {
+bool Sandwich::esteDisponibil() const
+{
     return stoc > 0 && !esteExpirat();
 }
 
-std::shared_ptr<Produs> Sandwich::clone() const {
+std::shared_ptr<Produs> Sandwich::clone() const
+{
     return std::make_shared<Sandwich>(*this);
 }
 
-void Sandwich::afisareDetalii(std::ostream& os) const {
+void Sandwich::afisareDetalii(std::ostream& os) const
+{
     os << "  Specificatii: " << kcal << " kcal | "
        << (vegan ? "Vegan | " : "")
        << (faraZahar ? "Fara Zahar | " : "")
@@ -49,13 +57,14 @@ void Sandwich::afisareDetalii(std::ostream& os) const {
        << (!esteExpirat() ? "In termen | " : "EXPIRAT! | ")
        << (vreaIncalzit ? "Servit Cald" : "Servit Rece");
 
-    // Timpul de preparare creste simbolic cu 60s daca se incalzeste
+    /// Timpul de preparare creste simbolic cu 60s daca se incalzeste
     int timpEfectiv = timpPreparare + (vreaIncalzit ? 60 : 0);
     os << "\n  Timp: " << timpEfectiv << "s | Stoc: " << stoc << " buc | Pret: " << calculeazaPretFinal() << " RON\n";
 }
 
 // Copy-and-Swap
-void swap(Sandwich& a, Sandwich& b) {
+void swap(Sandwich& a, Sandwich& b)
+{
     using std::swap;
     swap(static_cast<Produs&>(a), static_cast<Produs&>(b));
     swap(a.dataExpirarii, b.dataExpirarii);
@@ -74,7 +83,8 @@ Sandwich::Sandwich(const Sandwich& other)
       faraLactoza(other.faraLactoza), kcal(other.kcal),
       poateFiIncalzit(other.poateFiIncalzit), vreaIncalzit(other.vreaIncalzit) {}
 
-Sandwich& Sandwich::operator=(Sandwich other) {
+Sandwich& Sandwich::operator=(Sandwich other)
+{
     swap(*this, other);
     return *this;
 }

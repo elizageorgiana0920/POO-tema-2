@@ -1,10 +1,12 @@
+
 #ifndef EXCEPTII_H
 #define EXCEPTII_H
 
 #include <stdexcept>
 #include <string>
 
-///baza ierarhiei de exceptii
+///baza ierarhiei de exceptii CafeneaException
+///mosteneste std::runtime_error
 class CafeneaException:public std::runtime_error
 {
     using std::runtime_error::runtime_error;
@@ -21,13 +23,6 @@ class DateInvalideException:public CafeneaException
 {
 public:
     explicit DateInvalideException(const std::string& detalii): CafeneaException("Eroare: "+detalii) {}
-};
-
-class OraInvalidaException : public CafeneaException
-{
-public:
-    OraInvalidaException()
-        :CafeneaException("EROARE: Ora trebuie sa fie in format HH:MM!\n") {}
 };
 
 class AccesInterzisException: public CafeneaException

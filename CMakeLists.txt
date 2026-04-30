@@ -10,8 +10,6 @@ add_executable(cafenea_tema2
         Produs.cpp
         Bautura.cpp
         Patiserie.cpp
-        ProdusCustom.cpp
-        BauturaSpeciala.cpp
         Gestiune.cpp
         Comanda.cpp
         Autentificare.cpp

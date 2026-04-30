@@ -3,7 +3,7 @@
 
 #include <string>
 
-enum class Rol { CLIENT, BARISTA, MANAGER };
+enum class Rol { CLIENT, BARISTA, MANAGER, IESIRE };
 
 class Autentificare
 {
@@ -14,7 +14,7 @@ private:
 public:
     static Rol selecteazaRol();
     static void verificaParola(Rol rol);
-    static std::string numeRol(Rol rol);
+    static std::string getNumeRol(Rol rol);
 };
 
 #endif
