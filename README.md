@@ -70,16 +70,17 @@ Acest proiect implementează un sistem orientat pe obiect (POO) pentru gestionar
 
 ### Structura Meniului Interactiv
 
-| Rol | Acțiuni Principale                                                         |
-| :--- |:---------------------------------------------------------------------------|
-| **CLIENT** | Vizualizare meniu, Filtrare dietetică, Căutare, Comandă                    |
-| **BARISTA** | Verificare stoc ingrediente, Vizualizare stocuri critice                   |
-| **MANAGER** | Reaprovizionare, Rapoarte Business, Istoric Comenzi, Alerte Stoc Preparate |
+| Rol | Acțiuni Principale                                                                |
+| :--- |:----------------------------------------------------------------------------------|
+| **CLIENT** | Vizualizare meniu, Filtrare dietetică, Căutare, Comandă                           |
+| **BARISTA** | Verificare meniu disponibil, Vizualizare stocuri critice, Vede comenzi pe sesiune |
+| **MANAGER** | Reaprovizionare, Rapoarte Business, Istoric Comenzi, Alerte Stoc Preparate        |
 
 
 ## 📄 Persistența Datelor
 * `profit_total.txt`: Salvează profitul net la închiderea programului.
 * `registru.txt`: Jurnalul tuturor tranzacțiilor (ora, produs, preț).
+* `statistici.txt`: Tine evidenta orelor si produselor la care se comanda pentru alcatuirea orei de varf si a celui mai vandut produs.
 * `ingrediente.txt` & `toppinguri.txt`: Stocuri actualizate automat de Destructor.
 
 
@@ -140,8 +141,9 @@ Acest proiect implementează un sistem orientat pe obiect (POO) pentru gestionar
 ---
 
 ### Barista
-- Monitorizarea stocurilor de ingrediente
+- Monitorizarea stocurilor de produse
 - Identificarea ingredientelor cu stoc redus
+- Vizualizarea comenzilor care stau la coada una dupa alta
 - Autentificare securizată pe bază de parolă
 
 ---

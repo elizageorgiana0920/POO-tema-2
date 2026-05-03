@@ -16,7 +16,7 @@ class StocInsuficientException: public CafeneaException
 {
 public:
     explicit StocInsuficientException(const std::string& numeIngredient)
-        : CafeneaException("Produsul/Ingredientul '" + numeIngredient + "' nu este in stoc!\n") {}
+        : CafeneaException("Produsul '" + numeIngredient + "' nu este in stoc!\n") {}
 };
 
 class DateInvalideException:public CafeneaException

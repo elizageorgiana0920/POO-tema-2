@@ -2,7 +2,6 @@
 #include <string>
 #include <fstream>
 #include <ctime>
-#include <limits>
 #include <vector>
 
 #include "Gestiune.h"
@@ -35,25 +34,23 @@ static void meniuClient(Gestiune& g)
                   << "0. INAPOI\nOptiunea: ";
 
 
-        ///daca s-a citit altceva se continua pentru a nu se bloca, curata memoria temporara
+        ///daca a intorodus litere -> eroare
         if (!(std::cin >> optiune))
         {
-            std::cin.clear();
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            std::cin.clear();///resetez starea de eroare
+            std::cin.ignore(1000, '\n');///sterg continutul
             continue;
         }
-
         if (optiune == 0) break;
         try
         {
             switch (optiune)
             {
             case 1:
-                g.afisareMeniu(false);
+                g.afisareMeniu(false);///integral
                 break;
             case 2:
-                g.verificaPatiserieExpirata();
-                g.afisareMeniu(true);
+                g.afisareMeniu(true);///doar disponibil
                 break;
             case 3:
             {
@@ -66,7 +63,7 @@ static void meniuClient(Gestiune& g)
                 std::cin >> z;
                 std::cout << "Fara lactoza? (1-Da, 0-Nu): ";
                 std::cin >> l;
-                std::cout << "Ingredient specific (sau 'nu'): ";
+                std::cout << "[VALABIL DOAR PENTRU BAUTURI] Sa contina un ingredient specific (introduceti ingredientul sau 'nu'): ";
                 std::cin >> ing;
                 if (ing != "nu")
                 {
@@ -88,7 +85,6 @@ static void meniuClient(Gestiune& g)
             }
             case 5:
             {
-                g.verificaPatiserieExpirata();
                 Comanda comanda;
                 std::string numeP, raspuns = "da";
                 bool comandaAreProduse = false; /// Indicator pentru finalizare
@@ -194,6 +190,13 @@ static void meniuClient(Gestiune& g)
                 {
                     comanda.afisareSumarConsola();
                     comanda.finalizeazaComanda(g);
+
+                    g.adaugaComandaInSesiune(std::make_shared<Comanda>(comanda));
+
+                    int oraVanzare=getOraActuala();
+                    std::cout << "\n Comanda a fost trimisa catre preparare!\n";
+
+
                 }
                 else
                 {
@@ -221,17 +224,28 @@ static void meniuBarista(Gestiune& g)
         std::cout << "\n--- 2. MENIU BARISTA ---\n"
                   << "1. VEZI PRODUSE PE STOC\n"
                   << "2. VEZI STOCURI CRITICE\n"
+                  << "3. VEZI COMENZI NOI\n"
                   << "0. INAPOI\nOptiunea: ";
-        std::cin >> optiune;
+
+        ///daca a intorodus litere -> eroare
+        if (!(std::cin >> optiune))
+        {
+            std::cin.clear();///resetez starea de eroare
+            std::cin.ignore(1000, '\n');///sterg continutul
+            continue;
+        }
         if (optiune == 0) break;
 
         switch (optiune)
         {
         case 1:
-            g.afisareToateStocurile();
-            break;
+           g.afisareMeniu(true);///doar disponibil
+           break;
         case 2:
             g.afisareIngredienteCritice();
+            break;
+        case 3:
+            g.afisareComenziSesiune();
             break;
         default:
             std::cout << "Optiune invalida!\n";
@@ -254,7 +268,14 @@ static void meniuManager(Gestiune& g)
                   << "6. RAPOARTE BUSINESS\n"
                   << "7. VEZI TOATE COMENZILE (ISTORIC)\n"
                   << "0. INAPOI\nOptiunea: ";
-        std::cin >> optiune;
+
+        ///daca a intorodus litere -> eroare
+        if (!(std::cin >> optiune))
+        {
+            std::cin.clear();///resetez starea de eroare
+            std::cin.ignore(1000, '\n');///sterg continutul
+            continue;
+        }
         if (optiune == 0) break;
 
         switch (optiune)
@@ -310,6 +331,7 @@ int main()
         cafea.incarcaMeniuBauturi("bauturi.txt");
         cafea.incarcaMeniuPatiserie("patiserie.txt");
         cafea.incarcaMeniuSandwich("sandwichuri.txt");
+        cafea.incarcaStatistici("statistici.txt");
     }
     catch (const std::exception& e)
     {

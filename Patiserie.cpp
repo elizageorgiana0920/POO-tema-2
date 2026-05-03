@@ -41,11 +41,27 @@ std::shared_ptr<Produs> Patiserie::clone() const
     return std::make_shared<Patiserie>(*this);
 }
 
-///afisarea
-void Patiserie::afisareDetalii(std::ostream& os) const
+bool Patiserie::esteVegan() const
 {
-    os << "  Specificatii: " << kcal << " kcal | "
-       << (vegan ? "Vegan | "  : "")
+    return vegan;
+}
+bool Patiserie::esteFaraZahar() const
+{
+    return faraZahar;
+}
+bool Patiserie::esteFaraLactoza() const
+{
+    return faraLactoza;
+}
+float Patiserie::calculeazaKcalTotal() const
+{
+    return kcal;
+}
+
+///afisarea
+void Patiserie::afisareDetalii(std::ostream& os) const {
+    os << "  Specificatii: " << kcal << " kcal | ";
+    os << (vegan ? "Vegan | " : "")
        << (faraZahar ? "Fara Zahar | " : "")
        << (faraLactoza ? "Fara Lactoza | " : "")
        << (!esteExpirat() ? "In termen\n" : "Expirat!\n");

@@ -18,7 +18,7 @@ Gestiune::Gestiune()
     ///la pornire programul cauta fisierul profit_total pentru a continua unde a ramas
 
     std::ifstream f("profit_total.txt");
-    if (f >> profitTotal){}
+    if (f >> profitTotal) {}
     else
     {
         profitTotal = 0;
@@ -40,7 +40,8 @@ Gestiune::~Gestiune()
 
     std::ofstream fing("ingrediente.txt");
     if (fing.is_open())
-    {///salvarea ingredientelor din fiser txt
+    {
+        ///salvarea ingredientelor din fiser txt
         for (const auto& ing : listaIngrediente)
         {
             fing << ing.getNume() << " "
@@ -284,7 +285,7 @@ void Gestiune::verificaSandwichExpirat()
         auto sand = std::dynamic_pointer_cast<Sandwich>(p);
         // Dacă este sandwich și data curentă a depășit dataExpirarii
         if (sand && sand->esteExpirat())
-         sand->marcheazaExpirat();
+            sand->marcheazaExpirat();
 
     }
 }
@@ -297,29 +298,30 @@ void Gestiune::proceseazaComanda(std::shared_ptr<Produs> p, int ora)
 {
     if (!p->esteDisponibil()) throw StocInsuficientException(p->getNume());
 
-    /// Consumam ingredientele - Bautura
+    /// consum resursele (Ingrediente pentru Bautura / Stoc pentru Mancare)
     for (auto* ing : p->getIngrediente())
     {
         ing->consumaStoc();
         frecventaIngrediente[ing->getNume()]++;
     }
-    ///Consuma stoc -Patiserie
-    auto patiserie = std::dynamic_pointer_cast<Patiserie>(p);
-    if (patiserie) {
-        patiserie->scadeStoc();
-    }
-    ///Consuma stoc - Sandwich
-    auto sandwich = std::dynamic_pointer_cast<Sandwich>(p);
-    if (sandwich) {
-        sandwich->scadeStoc();
-    }
 
-    std::ofstream reg("registru.txt", std::ios::app);
-    reg << "[ora " << ora << "] " << p->getNume() << " - "
-        << p->getPretFinal() << " RON\n";
+    auto patiserie = std::dynamic_pointer_cast<Patiserie>(p);
+    if (patiserie) patiserie->scadeStoc();
+
+    auto sandwich = std::dynamic_pointer_cast<Sandwich>(p);
+    if (sandwich) sandwich->scadeStoc();
+
+    /// actualizez profitul total
+    ///pretul platit de client - pretul de preparare
     profitTotal += (p->getPretFinal() - p->getPretPreparare());
-    frecventaProduse[p->getNume()]++;
-    comenziPerOra[ora]++;
+
+    /// salvez vanzarea în statistici.txt pentru produsul de top si ora de varf
+
+    salveazaVanzareInIstoric(ora, p->getNume());
+
+    /// actualizez datele in memorie pentru raportul curent
+    ///frecventaProduse[p->getNume()]++;
+    ///frecventaOre[ora]++;
 }
 
 ///afiseaza un raport cu cel mai vandut produs, profitul total si determina care este ora la care s-au facut cele mai multe comenzi
@@ -336,10 +338,10 @@ void Gestiune::afisareRapoarte() const
         std::cout << "Top Produs: " << top->first << " (" << top->second << ")\n";
     }
     std::cout << "Profit Total: " << profitTotal << " RON\n";
-    if (!comenziPerOra.empty())
+    if (!frecventaOre.empty())
     {
         int oraVarf = -1, maxComenzi = -1;
-        for (auto const& [ora, nr] : comenziPerOra)
+        for (auto const& [ora, nr] : frecventaOre)
         {
             if (nr > maxComenzi)
             {
@@ -352,27 +354,32 @@ void Gestiune::afisareRapoarte() const
 }
 
 ///afiseaza daca patiserie si sandwich au stoc mai mic de 3
-void Gestiune::afisareProduseCriticePatiserieSandwich() const {
+void Gestiune::afisareProduseCriticePatiserieSandwich() const
+{
     std::cout << "\n========== ALERTA STOC CRITIC PREPARATE (< 3) ==========\n";
-   bool gasit = false;
+    bool gasit = false;
 
-    for (const auto& p : meniu) {
+    for (const auto& p : meniu)
+    {
         /// Verificăm dacă obiectul este Patiserie
         auto pat = std::dynamic_pointer_cast<Patiserie>(p);
-        if (pat && pat->getStoc() < 3) {
+        if (pat && pat->getStoc() < 3)
+        {
             std::cout << " [!] PATISERIE: " << pat->getNume() << " | Stoc: " << pat->getStoc() << "\n";
             gasit = true;
         }
 
         /// Verificăm dacă obiectul este Sandwich
         auto sand = std::dynamic_pointer_cast<Sandwich>(p);
-        if (sand && sand->getStoc() < 3) {
+        if (sand && sand->getStoc() < 3)
+        {
             std::cout << " [!] SANDWICH:  " << sand->getNume() << " | Stoc: " << sand->getStoc() << "\n";
             gasit = true;
         }
     }
 
-    if (!gasit) {
+    if (!gasit)
+    {
         std::cout << "Toate preparatele de patiserie si sandwich-urile au stoc suficient.\n";
     }
     std::cout << "--------------------------------------------------------\n";
@@ -396,4 +403,77 @@ Produs* Gestiune::gasesteProdusDupaNume(const std::string& nume) const
 {
     for (const auto& p : meniu) if (p->getNume() == nume) return p.get();
     return nullptr;
+}
+
+void Gestiune::incarcaStatistici(const std::string& fisier)
+{
+    std::ifstream fin(fisier);
+    if (!fin) return;
+
+    int ora;
+    std::string nume;
+    /// citim perechi de tip: Ora Nume_Produs
+    while (fin >> ora >> nume)
+    {
+        frecventaOre[ora]++;
+        frecventaProduse[nume]++;
+    }
+    fin.close();
+}
+
+void Gestiune::salveazaVanzareInIstoric(int ora, const std::string& numeProdus) {
+
+    std::ofstream fout("statistici.txt", std::ios::app);
+
+    if (fout.is_open()) {
+        fout << ora << " " << numeProdus << "\n";
+        fout.close();
+    }
+
+    frecventaOre[ora]++;
+    frecventaProduse[numeProdus]++;
+}
+
+void Gestiune::afiseazaRaportBusiness() const
+{
+    std::cout << "===== RAPORT BUSINESS =====\n";
+    std::cout << "Profit total: " << profitTotal << " RON\n";
+
+    ///calculez ora de varf
+    if (!frecventaOre.empty())
+    {
+        auto varf = std::max_element(frecventaOre.begin(), frecventaOre.end(),
+                                     [](const auto& a, const auto& b)
+        {
+            return a.second < b.second;
+        });
+        std::cout << "Ora de varf: " << varf->first << ":00 (" << varf->second << " comenzi)\n";
+    }
+
+    /// calculez top produs
+    if (!frecventaProduse.empty())
+    {
+        auto top = std::max_element(frecventaProduse.begin(), frecventaProduse.end(),
+                                    [](const auto& a, const auto& b)
+        {
+            return a.second < b.second;
+        });
+        std::cout << "Cel mai vandut produs: " << top->first << " (" << top->second << " unitati)\n";
+    }
+}
+
+void Gestiune::adaugaComandaInSesiune(std::shared_ptr<Comanda> c) {
+    comenziSesiuneCurenta.push_back(c);
+}
+
+void Gestiune::afisareComenziSesiune() const {
+    std::cout << "\n--- COMENZI NOI (SESIUNEA CURENTA) ---\n";
+    if (comenziSesiuneCurenta.empty()) {
+        std::cout << "Nu sunt comenzi noi de preparat.\n";
+        return;
+    }
+    for (const auto& com : comenziSesiuneCurenta) {
+        com->afisareSumarConsola();
+        std::cout << "--------------------------------------\n";
+    }
 }

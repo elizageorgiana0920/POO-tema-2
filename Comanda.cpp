@@ -11,8 +11,10 @@
 int Comanda::numarComenzi = 0;
 int Comanda::timpOcupatBarista = 0;
 
+
+///constructorul clasei comanda
 Comanda::Comanda() : idComanda(++numarComenzi), totalPlata(0.0f) {
-    /// GENERARE TIMESTAMP
+    /// generare timestamp
     std::time_t t = std::time(nullptr);
     std::tm* acum = std::localtime(&t);
     std::stringstream ss;
@@ -30,6 +32,7 @@ Comanda::Comanda() : idComanda(++numarComenzi), totalPlata(0.0f) {
     ///preiau ultimele 3 cifre de la timestampul unix- este unic
     this->codRidicare = "QR-" + std::to_string(idComanda) + "-" + std::to_string(t % 1000);
 }
+
 ///aici se creeaza o comanda pas cu pas, cu pointeri la Produs si total
 void Comanda::adaugaProdus(std::shared_ptr<Produs> p) {
     if (p != nullptr) {
@@ -62,7 +65,10 @@ void Comanda::finalizeazaComanda(Gestiune& g) {
     }
 
     /// Timpul de așteptare pentru acest client = timpul celor din fața lui + timpul produselor sale
-    int timpPregatire = 60;
+    int timpPregatire = 0;
+    for (const auto& p : produseComandate) {
+        timpPregatire += p->getTimpPreparare();
+    }
     int timpAsteptareFinal = timpOcupatBarista + timpPregatire;
     timpOcupatBarista += timpPregatire; /// Actualizăm coada pentru următorul client
 

@@ -33,6 +33,8 @@ public:
         return calculeazaPretFinal();
     }
 
+    int getTimpPreparare() const {return timpPreparare;}
+
     ///permite copierea obiectelor fara a sti timpul exact la momentul copierii
     virtual std::shared_ptr<Produs> clone() const = 0;
 

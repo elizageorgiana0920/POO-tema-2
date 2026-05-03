@@ -35,22 +35,10 @@ public:
 
     float calculeazaPretFinal() const override;///aduna pret per ingredient + pret preparare
     bool esteDisponibil() const override;
-    bool esteVegan() const override
-    {
-        return vegan;
-    }
-    bool esteFaraZahar() const override
-    {
-        return faraZahar;
-    }
-    bool esteFaraLactoza() const override
-    {
-        return faraLactoza;
-    }
-    float calculeazaKcalTotal() const override
-    {
-        return kcal;
-    }
+    bool esteVegan() const override;
+    bool esteFaraZahar() const override;
+    bool esteFaraLactoza() const override;
+    float calculeazaKcalTotal() const override;
     inline void scadeStoc(){if (stoc>0) stoc--;}
     bool esteExpirat() const;
     int getStoc() const { return stoc; }

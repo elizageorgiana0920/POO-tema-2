@@ -45,6 +45,9 @@ public:
         if (timpOcupatBarista < 0) timpOcupatBarista = 0;
     }
 
+    const std::vector<std::shared_ptr<Produs>>& getProduseComandate() const {
+        return produseComandate;
+    }
     void adaugaProdus(std::shared_ptr<Produs> p);
     int calculeazaTimpPregatirePropriu() const;
 
